@@ -31,7 +31,14 @@ public class mainScreenController implements Initializable {
     @FXML
     private TableView<Part> partsTable = new TableView<>();
     @FXML
-    private TableColumn<Part, Integer> idColumn = new TableColumn<>();
+    private TableColumn<Part, Integer> partIDColumn = new TableColumn<>();
+    @FXML
+    private TableColumn<Part, String> partNameColumn = new TableColumn<>();
+    @FXML
+    private TableColumn<Part, Integer> partInventoryColumn = new TableColumn<>();
+    @FXML
+    private TableColumn<Part, Double> partPriceColumn = new TableColumn<>();
+
     private TableColumn<Part, String> name;
     private TableColumn<Part, Integer> stock;
     private TableColumn<Part, Double> price;
@@ -39,10 +46,6 @@ public class mainScreenController implements Initializable {
 
     private ObservableList<Part> partInventory = FXCollections.observableArrayList();
     private ObservableList<Product> productInventory = FXCollections.observableArrayList();
-    private ObservableList<Part> partsInventorySearch = FXCollections.observableArrayList();
-    private ObservableList<Product> productInventorySearch = FXCollections.observableArrayList();
-
-
 
     public mainScreenController(Inventory inv) {
         this.inv = inv;
@@ -57,9 +60,10 @@ public class mainScreenController implements Initializable {
     public void initialize(URL location, ResourceBundle resources) {
         partInventory.setAll(inv.getAllParts());
         partsTable.setItems(partInventory);
-        idColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
-
-
+        partIDColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
+        partNameColumn.setCellValueFactory(new PropertyValueFactory<>("name"));
+        partInventoryColumn.setCellValueFactory(new PropertyValueFactory<>("stock"));
+        partPriceColumn.setCellValueFactory(new PropertyValueFactory<>("price"));
     }
 
 
