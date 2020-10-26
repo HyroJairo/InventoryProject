@@ -28,7 +28,7 @@ public class Inventory {
         return null;
     }
 
-    public Product lookupProduct(int productId) {
+    public Product lookUpProduct(int productId) {
         for(int i = 0; i < allProducts.size(); i++) {
             if(allProducts.get(i).getId() == productId) {
                 return allProducts.get(i);
@@ -37,28 +37,30 @@ public class Inventory {
         return null;
     }
 
-    public ObservableList<Part> lookupPart(String partName) {
-        ObservableList<Part> theParts = FXCollections.observableArrayList();
+    public ObservableList<Part> lookUpPart(String partName) {
+        ObservableList theParts = FXCollections.observableArrayList();
         if(partName != null) {
             for(int i = 0; i < allParts.size(); i++) {
-                if(allParts.get(i).getName() == partName) {
+                if(allParts.get(i).getName().contains(partName)) {
                     theParts.add(allParts.get(i));
                 }
             }
+            return theParts;
         }
-        return theParts;
+        return null;
     }
 
-    public ObservableList<Product> lookupProduct(String productName) {
-        ObservableList<Product> theProducts = FXCollections.observableArrayList();
+    public ObservableList<Product> lookUpProduct(String productName) {
+        ObservableList theProducts = FXCollections.observableArrayList();
         if(productName != null) {
             for(int i = 0; i < allProducts.size(); i++) {
-                if(allProducts.get(i).getName() == productName) {
+                if(allProducts.get(i).getName().contains(productName)) {
                     theProducts.add(allProducts.get(i));
                 }
             }
+            return theProducts;
         }
-        return theProducts;
+        return null;
     }
 
     public void updatePart(int index, Part selectedPart) {
@@ -69,12 +71,13 @@ public class Inventory {
         allProducts.set(index, newProduct);
     }
 
+
     public boolean deletePart(Part selectedPart) {
-        return allProducts.remove(selectedPart);
+        return allParts.remove(selectedPart);
     }
 
-    public boolean deleteProduct(Part selectedPart) {
-        return allParts.remove(selectedPart);
+    public boolean deleteProduct(Product selectedProduct) {
+        return allProducts.remove(selectedProduct);
     }
 
     public ObservableList<Part> getAllParts() {

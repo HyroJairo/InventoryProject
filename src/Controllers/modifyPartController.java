@@ -1,21 +1,30 @@
 package Controllers;
 
+import Model.InHouse;
+import Model.Outsourced;
 import Model.Inventory;
+import Model.Part;
 import javafx.event.ActionEvent;
+import javafx.event.Event;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.control.RadioButton;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 
 import java.io.IOException;
+import java.net.URL;
+import java.util.ResourceBundle;
 
-public class modifyPartController {
+public class modifyPartController implements Initializable {
     Inventory inv;
+    Part part;
 
     @FXML
     private RadioButton modifyPartIn;
@@ -50,12 +59,84 @@ public class modifyPartController {
     @FXML
     private Button modifyPartCancel;
 
-    public modifyPartController(Inventory inv) {
+    @FXML
+    private Label partMachineLabel;
+
+    public modifyPartController(Inventory inv, Part part) {
         this.inv = inv;
+        this.part = part;
+    }
+
+    /**
+     * Initializes the controller class
+     * @param resources
+     * @throws IOException
+     */
+    @Override
+    public void initialize(URL location, ResourceBundle resources) {
+        if(part instanceof InHouse) {
+            InHouse partOne = (InHouse) part;
+            modifyPartIn.setSelected(true);
+            partMachineLabel.setText("Machine ID");
+            modifyPartName.setText(partOne.getName());
+            modifyPartID.setText(Integer.toString(partOne.getId()));
+            modifyPartInv.setText(Integer.toString(partOne.getStock()));
+            modifyPartPrice.setText(Double.toString(partOne.getPrice()));
+            modifyPartMin.setText(Integer.toString(partOne.getMin()));
+            modifyPartMax.setText(Integer.toString(partOne.getMax()));
+            modifyPartMachine.setText(Integer.toString(partOne.getMachineId()));
+        }
+        if(part instanceof Outsourced) {
+            Outsourced partTwo = (Outsourced) part;
+            modifyPartIn.setSelected(true);
+            partMachineLabel.setText("Company Name");
+            modifyPartName.setText(partTwo.getName());
+            modifyPartID.setText(Integer.toString(partTwo.getId()));
+            modifyPartInv.setText(Integer.toString(partTwo.getStock()));
+            modifyPartPrice.setText(Double.toString(partTwo.getPrice()));
+            modifyPartMin.setText(Integer.toString(partTwo.getMin()));
+            modifyPartMachine.setText(partTwo.getCompanyName());
+        }
     }
 
     @FXML
     void onActionCancel(ActionEvent event) throws IOException {
+        mainScreen(event);
+    }
+
+    @FXML
+    void onActionIn(ActionEvent event) {
+        partMachineLabel.setText("Machine ID");
+    }
+
+    @FXML
+    void onActionOut(ActionEvent event) {
+        partMachineLabel.setText("Company Name");
+    }
+
+    @FXML
+    void onActionSave(ActionEvent event) throws IOException {
+        int id = Integer.parseInt(modifyPartID.getText().trim());
+        String name = modifyPartName.getText().trim();
+        Double price = Double.parseDouble(modifyPartPrice.getText().trim());
+        Integer stock = Integer.parseInt(modifyPartInv.getText().trim());
+        Integer min = Integer.parseInt(modifyPartMin.getText().trim());
+        Integer max = Integer.parseInt(modifyPartMax.getText().trim());
+        if(modifyPartIn.isSelected()) {
+            Integer machID = Integer.parseInt(modifyPartMachine.getText().trim());
+            Integer index = inv.getAllParts().indexOf(part);
+            inv.updatePart(index, new InHouse(id, name, price, stock, min, max, machID));
+        }
+
+        else if (modifyPartOut.isSelected()) {
+            String machID = modifyPartMachine.getText().trim();
+            Integer index = inv.getAllParts().indexOf(part);
+            inv.updatePart(index, new Outsourced(id, name, price, stock, min, max, machID));
+        }
+        mainScreen(event);
+    }
+
+    private void mainScreen(Event event) throws IOException {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/Views/main_screen.fxml"));
         mainScreenController controller = new mainScreenController(inv);
 
@@ -66,21 +147,6 @@ public class modifyPartController {
         stage.setScene(scene);
         stage.setResizable(false);
         stage.show();
-    }
-
-    @FXML
-    void onActionIn(ActionEvent event) {
-
-    }
-
-    @FXML
-    void onActionOut(ActionEvent event) {
-
-    }
-
-    @FXML
-    void onActionSave(ActionEvent event) {
-
     }
 
 }

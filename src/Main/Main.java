@@ -44,14 +44,14 @@ public class Main extends Application {
         inv.addPart(new InHouse(4, "Part A3", 5.99, 15, 5, 100, 104));
         inv.addPart(new InHouse(5, "Part A4", 6.99, 5, 5, 100, 105));
         //Add OutSourced Parts
-        Part o1 = new Outsource(6, "Part O1", 2.99, 10, 5, 100, "ACME Co.");
-        Part p = new Outsource(7, "Part P", 3.99, 9, 5, 100, "ACME Co.");
-        Part q = new Outsource(8, "Part Q", 2.99, 10, 5, 100, "FLORIDA Co.");
+        Part o1 = new Outsourced(6, "Part O1", 2.99, 10, 5, 100, "ACME Co.");
+        Part p = new Outsourced(7, "Part P", 3.99, 9, 5, 100, "ACME Co.");
+        Part q = new Outsourced(8, "Part Q", 2.99, 10, 5, 100, "FLORIDA Co.");
         inv.addPart(o1);
         inv.addPart(p);
         inv.addPart(q);
-        inv.addPart(new Outsource(9, "Part R", 2.99, 10, 5, 100, "FLORIDA Co."));
-        inv.addPart(new Outsource(10, "Part O2", 2.99, 10, 5, 100, "NY Co."));
+        inv.addPart(new Outsourced(9, "Part R", 2.99, 10, 5, 100, "FLORIDA Co."));
+        inv.addPart(new Outsourced(10, "Part O2", 2.99, 10, 5, 100, "NY Co."));
         //Add allProducts
         Product prod1 = new Product(100, "Product 1", 9.99, 20, 5, 100);
         prod1.addAssociatedPart(a1);
