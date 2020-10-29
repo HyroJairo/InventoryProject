@@ -17,7 +17,7 @@
                   <Font name="Avenir Next Bold" size="18.0" />
                </font>
             </Label>
-            <TextField fx:id="partSearchBox" layoutX="105.0" layoutY="17.0" onMouseClicked="#textSearch">
+            <TextField fx:id="partSearchBox" layoutX="105.0" layoutY="17.0" onMouseClicked="#clearText">
                <font>
                   <Font size="10.0" />
                </font>
@@ -59,7 +59,7 @@
                   <Font name="Avenir Next Bold" size="18.0" />
                </font>
             </Label>
-            <TextField fx:id="productSearchBox" layoutX="102.0" layoutY="17.0" onMouseClicked="#textSearch">
+            <TextField fx:id="productSearchBox" layoutX="102.0" layoutY="17.0" onMouseClicked="#clearText">
                <font>
                   <Font size="10.0" />
                </font>

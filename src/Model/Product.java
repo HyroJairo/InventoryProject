@@ -21,6 +21,9 @@ public class Product {
         this.max = max;
     }
 
+    //Inventory cannot be greater than max!
+    //Product cost cannot be lower than it's parts
+
     public void setId(int id) {
         this.id = id;
     }

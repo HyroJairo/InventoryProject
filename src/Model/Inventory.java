@@ -19,7 +19,7 @@ public class Inventory {
         }
     }
 
-    public Part lookupPart(int partId) {
+    public Part lookUpPart(int partId) {
         for(int i = 0; i < allParts.size(); i++) {
             if(allParts.get(i).getId() == partId) {
                 return allParts.get(i);

@@ -22,46 +22,43 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
 
+/**
+ * This is the modifyPartController. This screen shows for you to modify parts
+ */
 public class modifyPartController implements Initializable {
     Inventory inv;
     Part part;
 
     @FXML
     private RadioButton modifyPartIn;
-
     @FXML
     private RadioButton modifyPartOut;
-
     @FXML
     private TextField modifyPartID;
-
     @FXML
     private TextField modifyPartName;
-
     @FXML
     private TextField modifyPartInv;
-
     @FXML
     private TextField modifyPartPrice;
-
     @FXML
     private TextField modifyPartMax;
-
     @FXML
     private TextField modifyPartMachine;
-
     @FXML
     private TextField modifyPartMin;
-
     @FXML
     private Button modifyPartSave;
-
     @FXML
     private Button modifyPartCancel;
-
     @FXML
     private Label partMachineLabel;
 
+    /**
+     * This is the constructor for the modifyPartController
+     * @param inv
+     * @param part
+     */
     public modifyPartController(Inventory inv, Part part) {
         this.inv = inv;
         this.part = part;
@@ -99,21 +96,39 @@ public class modifyPartController implements Initializable {
         }
     }
 
+    /**
+     * This goes to the mainScreenController
+     * @param event
+     * @throws IOException
+     */
     @FXML
     void onActionCancel(ActionEvent event) throws IOException {
         mainScreen(event);
     }
 
+    /**
+     * This switches to the InHouse section where there is the Machine ID
+     * @param event
+     */
     @FXML
     void onActionIn(ActionEvent event) {
         partMachineLabel.setText("Machine ID");
     }
 
+    /**
+     * This switches to the Outsource section where there is the Company Name
+     * @param event
+     */
     @FXML
     void onActionOut(ActionEvent event) {
         partMachineLabel.setText("Company Name");
     }
 
+    /**
+     * This saves the modifying of the product whether its for InHouse or Outsourced
+     * @param event
+     * @throws IOException
+     */
     @FXML
     void onActionSave(ActionEvent event) throws IOException {
         int id = Integer.parseInt(modifyPartID.getText().trim());
@@ -136,6 +151,11 @@ public class modifyPartController implements Initializable {
         mainScreen(event);
     }
 
+    /**
+     * This is the private method for going to the mainScreenController
+     * @param event
+     * @throws IOException
+     */
     private void mainScreen(Event event) throws IOException {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/Views/main_screen.fxml"));
         mainScreenController controller = new mainScreenController(inv);

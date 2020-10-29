@@ -14,16 +14,15 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.MouseEvent;
 import javafx.stage.Stage;
 import Model.*;
-
-
 import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
 
-import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 
-
+/**
+ * This is the mainScreenController. This is the main screen which pops up when you run the program
+ */
 public class mainScreenController implements Initializable {
     Stage stage;
     Parent scene;
@@ -113,17 +112,20 @@ public class mainScreenController implements Initializable {
      */
     @FXML
     void onActionModifyParts(ActionEvent event) throws IOException {
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/Views/modify_part.fxml"));
-        Part part = partsTable.getSelectionModel().getSelectedItem();
-        modifyPartController controller = new modifyPartController(inv, part);
+        Part item = partsTable.getSelectionModel().getSelectedItem();
+        if(item != null) {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/Views/modify_part.fxml"));
+            Part part = partsTable.getSelectionModel().getSelectedItem();
+            modifyPartController controller = new modifyPartController(inv, part);
 
-        loader.setController(controller);
-        Parent root = loader.load();
-        Scene scene = new Scene(root);
-        Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-        stage.setScene(scene);
-        stage.setResizable(false);
-        stage.show();
+            loader.setController(controller);
+            Parent root = loader.load();
+            Scene scene = new Scene(root);
+            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+            stage.setScene(scene);
+            stage.setResizable(false);
+            stage.show();
+        }
     }
 
     /**
@@ -159,7 +161,6 @@ public class mainScreenController implements Initializable {
     void onActionAddProducts(ActionEvent event) throws IOException {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/Views/add_product.fxml"));
         addProductController controller = new addProductController(inv);
-
         loader.setController(controller);
         Parent root = loader.load();
         Scene scene = new Scene(root);
@@ -176,16 +177,18 @@ public class mainScreenController implements Initializable {
      */
     @FXML
     void onActionModifyProducts(ActionEvent event) throws IOException {
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/Views/modify_product.fxml"));
-        modifyProductController controller = new modifyProductController(inv);
-
-        loader.setController(controller);
-        Parent root = loader.load();
-        Scene scene = new Scene(root);
-        Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-        stage.setScene(scene);
-        stage.setResizable(false);
-        stage.show();
+        Product item = productsTable.getSelectionModel().getSelectedItem();
+        if(item != null) {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/Views/modify_product.fxml"));
+            modifyProductController controller = new modifyProductController(inv, item);
+            loader.setController(controller);
+            Parent root = loader.load();
+            Scene scene = new Scene(root);
+            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+            stage.setScene(scene);
+            stage.setResizable(false);
+            stage.show();
+        }
     }
 
     /**
@@ -222,8 +225,12 @@ public class mainScreenController implements Initializable {
         System.exit(0);
     }
 
+    /**
+     * This helps bring everything back when you
+     * @param event
+     */
     @FXML
-    void textSearch(MouseEvent event) {
+    void clearText(MouseEvent event) {
         Object source = event.getSource();
         TextField field = (TextField) source;
         field.setText("");
@@ -238,10 +245,5 @@ public class mainScreenController implements Initializable {
             }
         }
     }
+
 }
-
-
-
-
-
-

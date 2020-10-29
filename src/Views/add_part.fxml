@@ -40,7 +40,7 @@
             <Label text="Name" GridPane.rowIndex="1" />
             <Label text="Inv" GridPane.rowIndex="2" />
             <Label text="ID" />
-            <TextField fx:id="addPartID" GridPane.columnIndex="1" />
+            <TextField fx:id="addPartID" editable="false" GridPane.columnIndex="1" />
             <TextField fx:id="addPartName" GridPane.columnIndex="1" GridPane.rowIndex="1" />
             <TextField fx:id="addPartInv" GridPane.columnIndex="1" GridPane.rowIndex="2" />
             <Label text="Price/Cost" GridPane.rowIndex="3" />
