@@ -12,20 +12,20 @@ import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.RadioButton;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.stage.Stage;
+import sun.lwawt.macosx.CSystemTray;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.Optional;
 import java.util.ResourceBundle;
 
 /**
  * This is the modifyPartController. This screen shows for you to modify parts
  */
 public class modifyPartController implements Initializable {
+
     Inventory inv;
     Part part;
 
@@ -97,16 +97,6 @@ public class modifyPartController implements Initializable {
     }
 
     /**
-     * This goes to the mainScreenController
-     * @param event
-     * @throws IOException
-     */
-    @FXML
-    void onActionCancel(ActionEvent event) throws IOException {
-        mainScreen(event);
-    }
-
-    /**
      * This switches to the InHouse section where there is the Machine ID
      * @param event
      */
@@ -131,24 +121,78 @@ public class modifyPartController implements Initializable {
      */
     @FXML
     void onActionSave(ActionEvent event) throws IOException {
+
+        boolean clean = true;
+        TextField[] fields = {modifyPartID, modifyPartName, modifyPartPrice,
+                              modifyPartInv, modifyPartMin, modifyPartMax};
+        for(TextField field: fields) {
+            if(!checkValue(field)) {
+                clean = false;
+            }
+        }
+        if(!clean) return;
+
         int id = Integer.parseInt(modifyPartID.getText().trim());
         String name = modifyPartName.getText().trim();
+
         Double price = Double.parseDouble(modifyPartPrice.getText().trim());
         Integer stock = Integer.parseInt(modifyPartInv.getText().trim());
         Integer min = Integer.parseInt(modifyPartMin.getText().trim());
         Integer max = Integer.parseInt(modifyPartMax.getText().trim());
-        if(modifyPartIn.isSelected()) {
-            Integer machID = Integer.parseInt(modifyPartMachine.getText().trim());
-            Integer index = inv.getAllParts().indexOf(part);
-            inv.updatePart(index, new InHouse(id, name, price, stock, min, max, machID));
+        //this checks if the stock is not greater than max
+        if(stock <= max) {
+            //this checks if the stock is not less than min
+            if(stock >= min) {
+                //this checks if max is greater or equal to min and if the associate table is not empty
+                if(max >= min) {
+                    //This is a divider
+                    if(modifyPartIn.isSelected()) {
+                        Integer machID = Integer.parseInt(modifyPartMachine.getText().trim());
+                        Integer index = inv.getAllParts().indexOf(part);
+                        inv.updatePart(index, new InHouse(id, name, price, stock, min, max, machID));
+                    }
+
+                    else if (modifyPartOut.isSelected()) {
+                        String machID = modifyPartMachine.getText().trim();
+                        Integer index = inv.getAllParts().indexOf(part);
+                        inv.updatePart(index, new Outsourced(id, name, price, stock, min, max, machID));
+                    }
+                    mainScreen(event);
+
+                } else {
+                    infoBoxError("max cannot be less than min", "error");
+                }
+            } else {
+                infoBoxError("stock cannot be less than min", "error");
+            }
+        } else {
+            infoBoxError("stock cannot be greater than max", "error");
         }
 
-        else if (modifyPartOut.isSelected()) {
-            String machID = modifyPartMachine.getText().trim();
-            Integer index = inv.getAllParts().indexOf(part);
-            inv.updatePart(index, new Outsourced(id, name, price, stock, min, max, machID));
+    }
+
+    /**
+     * This is an infobox for errors
+     * @param infoMessage
+     * @param headerText
+     */
+    public void infoBoxError(String infoMessage, String headerText) {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setHeaderText(headerText);
+        alert.setContentText(infoMessage);
+        alert.showAndWait();
+    }
+
+    /**
+     * This goes to the mainScreenController
+     * @param event
+     * @throws IOException
+     */
+    @FXML
+    void onActionCancel(ActionEvent event) throws IOException {
+        if(infoBoxConfirm()) {
+            mainScreen(event);
         }
-        mainScreen(event);
     }
 
     /**
@@ -167,6 +211,47 @@ public class modifyPartController implements Initializable {
         stage.setScene(scene);
         stage.setResizable(false);
         stage.show();
+    }
+
+    /**
+     * This is an infobox for confirmations
+     */
+    public boolean infoBoxConfirm() {
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setHeaderText("Are you sure?");
+
+        Optional<ButtonType> result = alert.showAndWait();
+        return result.get() == ButtonType.OK;
+    }
+
+    /**
+     * This checks the user input values
+     */
+    public boolean checkValue(TextField text) {
+
+        if(text.getText().trim().isEmpty() || (text.getText().trim() == null)) {
+            infoBoxError("value cannot be empty", "error");
+            return false;
+        } else if(text == modifyPartInv && !text.getText().trim().matches("[0-9]+")) {
+            infoBoxError("inventory must be of numerical format", "error");
+
+            return false;
+        } else if(text == modifyPartPrice && !text.getText().trim().matches("^[0-9]+[.][0-9]{2}$")) {
+
+            infoBoxError("price must be of price format ex(1.11)", "error");
+            return false;
+        } else if(text == modifyPartPrice && Double.parseDouble(text.getText().trim()) < 0) {
+            infoBoxError("price cannot be less than 0", "error");
+            return false;
+        } else if((text == modifyPartMax ||
+                text == modifyPartMin ||
+                text == modifyPartMachine) && !text.getText().trim().matches("[0-9]+")) {
+
+            infoBoxError(text.getText() + " must be of numerical format", "error");
+            return false;
+        } else {
+            return true;
+        }
     }
 
 }

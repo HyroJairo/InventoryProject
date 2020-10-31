@@ -16,6 +16,7 @@ import javafx.stage.Stage;
 import Model.*;
 import java.io.IOException;
 import java.net.URL;
+import java.util.Optional;
 import java.util.ResourceBundle;
 
 import javafx.scene.control.TableColumn;
@@ -64,6 +65,7 @@ public class mainScreenController implements Initializable {
 
     /**
      * Initializes the controller class
+     *
      * @param location
      * @param resources
      */
@@ -87,7 +89,21 @@ public class mainScreenController implements Initializable {
     }
 
     /**
+     * This helps searches for the parts section
+     *
+     * @param event
+     */
+    @FXML
+    void onActionPartsSearch(ActionEvent event) {
+        if (!partSearchBox.getText().trim().isEmpty()) {
+            partsTable.setItems(inv.lookUpPart(partSearchBox.getText().trim()));
+            partsTable.refresh();
+        }
+    }
+
+    /**
      * This goes to the add parts screen
+     *
      * @param event
      * @throws IOException
      */
@@ -107,13 +123,14 @@ public class mainScreenController implements Initializable {
 
     /**
      * This goes to the modify parts screen
+     *
      * @param event
      * @throws IOException
      */
     @FXML
     void onActionModifyParts(ActionEvent event) throws IOException {
         Part item = partsTable.getSelectionModel().getSelectedItem();
-        if(item != null) {
+        if (item != null) {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/Views/modify_part.fxml"));
             Part part = partsTable.getSelectionModel().getSelectedItem();
             modifyPartController controller = new modifyPartController(inv, part);
@@ -130,30 +147,39 @@ public class mainScreenController implements Initializable {
 
     /**
      * This is the delete action for parts
+     *
      * @param event
      */
     @FXML
     void onActionDeleteParts(ActionEvent event) {
         Part removePart = partsTable.getSelectionModel().getSelectedItem();
-        inv.deletePart(removePart);
-        partInventory.remove(removePart);
+        if (removePart != null) {
+            if(infoBoxConfirm()) {
+                inv.deletePart(removePart);
+                partInventory.remove(removePart);
+            }
+        } else {
+            infoBoxError("You must select a part", "error");
+        }
 
     }
 
     /**
-     * This helps searches for the parts section
+     * This helps searches for the products section
+     *
      * @param event
      */
     @FXML
-    void onActionPartsSearch(ActionEvent event) {
-        if (!partSearchBox.getText().trim().isEmpty()) {
-            partsTable.setItems(inv.lookUpPart(partSearchBox.getText().trim()));
-            partsTable.refresh();
+    void onActionProductsSearch(ActionEvent event) {
+        if (!productSearchBox.getText().trim().isEmpty()) {
+            productsTable.setItems(inv.lookUpProduct(productSearchBox.getText().trim()));
+            productsTable.refresh();
         }
     }
 
     /**
      * This goes to the add products screen
+     *
      * @param event
      * @throws IOException
      */
@@ -172,13 +198,14 @@ public class mainScreenController implements Initializable {
 
     /**
      * This goes to the modify products screen
+     *
      * @param event
      * @throws IOException
      */
     @FXML
     void onActionModifyProducts(ActionEvent event) throws IOException {
         Product item = productsTable.getSelectionModel().getSelectedItem();
-        if(item != null) {
+        if (item != null) {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/Views/modify_product.fxml"));
             modifyProductController controller = new modifyProductController(inv, item);
             loader.setController(controller);
@@ -193,30 +220,33 @@ public class mainScreenController implements Initializable {
 
     /**
      * This is the delete action for products
+     *
      * @param event
      */
     @FXML
     void onActionDeleteProducts(ActionEvent event) {
         Product removeProduct = productsTable.getSelectionModel().getSelectedItem();
-        inv.deleteProduct(removeProduct);
-        productInventory.remove(removeProduct);
+        if (removeProduct != null) {
+            if(removeProduct.getAllAssociatedParts().size() > 0) {
 
-    }
-
-    /**
-     * This helps searches for the products section
-     * @param event
-     */
-    @FXML
-    void onActionProductsSearch(ActionEvent event) {
-        if (!productSearchBox.getText().trim().isEmpty()) {
-            productsTable.setItems(inv.lookUpProduct(productSearchBox.getText().trim()));
-            productsTable.refresh();
+               Alert alert = new Alert(Alert.AlertType.WARNING);
+               alert.setHeaderText("Warning");
+               alert.setContentText("Product still has parts associated with it");
+               alert.showAndWait();
+               if(infoBoxConfirm()) {
+                   inv.deleteProduct(removeProduct);
+                   productInventory.remove(removeProduct);
+               }
+            }
+        } else {
+            infoBoxError("You must select a product", "error");
         }
+
     }
 
     /**
      * This is the exit action for the whole screen
+     *
      * @param event
      */
     @FXML
@@ -226,7 +256,8 @@ public class mainScreenController implements Initializable {
     }
 
     /**
-     * This helps bring everything back when you
+     * This clears the text in the search box
+     *
      * @param event
      */
     @FXML
@@ -244,6 +275,30 @@ public class mainScreenController implements Initializable {
                 productsTable.setItems(productInventory);
             }
         }
+    }
+
+    /**
+     * This is an infobox for errors
+     *
+     * @param infoMessage
+     * @param headerText
+     */
+    public void infoBoxError(String infoMessage, String headerText) {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setHeaderText(headerText);
+        alert.setContentText(infoMessage);
+        alert.showAndWait();
+    }
+
+    /**
+     * This is an infobox for confirmations
+     */
+    public boolean infoBoxConfirm() {
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setHeaderText("Are you sure?");
+
+        Optional<ButtonType> result = alert.showAndWait();
+        return result.get() == ButtonType.OK;
     }
 
 }

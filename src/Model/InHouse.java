@@ -8,7 +8,7 @@ public class InHouse extends Part {
         setId(id);
         setName(name);
         setPrice(price);
-        setPrice(stock);
+        setStock(stock);
         setMin(min);
         setMax(max);
         setMachineId(machineId);

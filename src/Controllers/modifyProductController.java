@@ -21,6 +21,7 @@ import javafx.stage.Stage;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.Optional;
 import java.util.ResourceBundle;
 
 public class modifyProductController implements Initializable {
@@ -43,8 +44,9 @@ public class modifyProductController implements Initializable {
     //This is for the parts table
     @FXML
     private TextField partSearchBox;
+
     @FXML
-    private Button searchPartsButton;
+    private Button modifyPartAdd;
     @FXML
     private TableView<Part> partsTable = new TableView<>();
     @FXML
@@ -55,8 +57,7 @@ public class modifyProductController implements Initializable {
     private TableColumn<Part, Integer> partInventoryColumn = new TableColumn<>();
     @FXML
     private TableColumn<Part, Double> partPriceColumn = new TableColumn<>();
-    @FXML
-    private Button modifyPartAdd;
+
 
     //This is for the associate table
     @FXML
@@ -80,7 +81,7 @@ public class modifyProductController implements Initializable {
     private ObservableList<Part> part1Inventory = FXCollections.observableArrayList();
 
     /**
-     * This is the constructor for the modifyProductController
+     * This is the constructor for the modifyProductController class
      * @param inv
      * @param product
      */
@@ -90,7 +91,7 @@ public class modifyProductController implements Initializable {
     }
 
     /**
-     * Initializes the controller classs
+     * Initializes the modifyProductController class
      * @param location
      * @param resources
      */
@@ -132,6 +133,10 @@ public class modifyProductController implements Initializable {
 
     }
 
+    /**
+     * This adds the parts data into the associates table
+     * @param event
+     */
     @FXML
     void onActionAdd(ActionEvent event) {
         Part part = partsTable.getSelectionModel().getSelectedItem();
@@ -151,31 +156,39 @@ public class modifyProductController implements Initializable {
 
     }
 
-    @FXML
-    void onActionCancel(ActionEvent event) throws IOException {
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/Views/main_screen.fxml"));
-        mainScreenController controller = new mainScreenController(inv);
-
-        loader.setController(controller);
-        Parent root = loader.load();
-        Scene scene = new Scene(root);
-        Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-        stage.setScene(scene);
-        stage.setResizable(false);
-        stage.show();
-    }
-
+    /**
+     * This removes the selected part from the associate table
+     * @param event
+     */
     @FXML
     void onActionRemove(ActionEvent event) {
         Part removePart = associateTable.getSelectionModel().getSelectedItem();
         if(removePart != null) {
-            part1Inventory.remove(removePart);
-            associateTable.refresh();
+            if(infoBoxConfirm()) {
+                part1Inventory.remove(removePart);
+                associateTable.refresh();
+            }
         }
     }
 
+    /**
+     * This saves the data for the associated parts
+     * @param event
+     * @throws IOException
+     */
     @FXML
     void onActionSave(ActionEvent event) throws IOException {
+        boolean clean = true;
+        TextField[] fields = {modifyProductID, modifyProductName, modifyProductPrice,
+                modifyProductInv, modifyProductMin, modifyProductMax};
+        for(TextField field: fields) {
+            if(!checkValue(field)) {
+                clean = false;
+            }
+        }
+
+        if(!clean) return;
+
         int id = Integer.parseInt(modifyProductID.getText().trim());
         String name = modifyProductName.getText().trim();
         Double price = Double.parseDouble(modifyProductPrice.getText().trim());
@@ -202,22 +215,38 @@ public class modifyProductController implements Initializable {
                             inv.addProduct(product);
                             mainScreen(event);
                         } else {
-                            infoBox("price cannot be less than the price of the parts", "error");
+                            infoBoxError("price cannot be less than the price of the parts", "error");
                         }
                     }  else {
-                        infoBox("You must add a part", "error");
+                        infoBoxError("You must add a part", "error");
                     }
                 } else {
-                    infoBox("max cannot be less than min", "error");
+                    infoBoxError("max cannot be less than min", "error");
                 }
             } else {
-                infoBox("stock cannot be less than min", "error");
+                infoBoxError("stock cannot be less than min", "error");
             }
         } else {
-            infoBox("stock cannot be greater than max", "error");
+            infoBoxError("stock cannot be greater than max", "error");
         }
     }
 
+    /**
+     * This searches for the parts section
+     * @param event
+     */
+    @FXML
+    void onActionPartsSearch(ActionEvent event) {
+        if (!partSearchBox.getText().trim().isEmpty()) {
+            partsTable.setItems(inv.lookUpPart(partSearchBox.getText().trim()));
+            partsTable.refresh();
+        }
+    }
+
+    /**
+     * This clears the search box and resets parts table
+     * @param event
+     */
     @FXML
     void clearText(MouseEvent event) {
         Object source = event.getSource();
@@ -230,11 +259,15 @@ public class modifyProductController implements Initializable {
         }
     }
 
+    /**
+     * This goes back to the main screen
+     * @param event
+     * @throws IOException
+     */
     @FXML
-    void onActionPartsSearch(ActionEvent event) {
-        if (!partSearchBox.getText().trim().isEmpty()) {
-            partsTable.setItems(inv.lookUpPart(partSearchBox.getText().trim()));
-            partsTable.refresh();
+    void onActionCancel(ActionEvent event) throws IOException {
+        if(infoBoxConfirm()) {
+            mainScreen(event);
         }
     }
 
@@ -256,18 +289,54 @@ public class modifyProductController implements Initializable {
     }
 
     /**
-     * This is an infobox for corrections
+     * This is an infobox for errors
      * @param infoMessage
-     * @param titleBar
+     * @param headerText
      */
-    public static void infoBox(String infoMessage, String titleBar)
-    {
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle(titleBar);
+    public void infoBoxError(String infoMessage, String headerText) {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setHeaderText(headerText);
         alert.setContentText(infoMessage);
         alert.showAndWait();
     }
 
+    /**
+     * This is an infobox for confirmations
+     */
+    public boolean infoBoxConfirm() {
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setHeaderText("Are you sure?");
+
+        Optional<ButtonType> result = alert.showAndWait();
+        return result.get() == ButtonType.OK;
+    }
+
+    /**
+     * This checks the user input values
+     */
+    public boolean checkValue(TextField text) {
+
+        if (text.getText().trim().isEmpty() || (text.getText().trim() == null)) {
+            infoBoxError("value cannot be empty", "error");
+            return false;
+        } else if (text == modifyProductInv && !text.getText().trim().matches("[0-9]+")) {
+            infoBoxError("inventory must be of numerical format", "error");
+            return false;
+        } else if (text == modifyProductPrice && !text.getText().trim().matches("^[0-9]+[.][0-9]{2}$")) {
+
+            infoBoxError("price must be of price format ex(1.11)", "error");
+            return false;
+        } else if (text == modifyProductPrice && Double.parseDouble(text.getText().trim()) < 0) {
+            infoBoxError("price cannot be less than 0", "error");
+            return false;
+        } else if ((text == modifyProductMax ||
+                text == modifyProductMin) && !text.getText().trim().matches("[0-9]+")) {
+            infoBoxError(text.getText() + " must be of numerical format", "error");
+            return false;
+        } else {
+            return true;
+        }
+    }
 }
 
 

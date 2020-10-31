@@ -24,6 +24,7 @@ import javafx.stage.Stage;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.Optional;
 import java.util.Random;
 import java.util.ResourceBundle;
 
@@ -51,6 +52,8 @@ public class addProductController implements Initializable {
     @FXML
     private TextField partSearchBox;
     @FXML
+    private Button addPartAdd;
+    @FXML
     private TableView<Part> partsTable = new TableView<>();
     @FXML
     private TableColumn<Part, Integer> partIDColumn = new TableColumn<>();
@@ -60,8 +63,7 @@ public class addProductController implements Initializable {
     private TableColumn<Part, Integer> partInventoryColumn = new TableColumn<>();
     @FXML
     private TableColumn<Part, Double> partPriceColumn = new TableColumn<>();
-    @FXML
-    private Button addPartAdd;
+
 
 
     //This is for the associate table
@@ -86,13 +88,16 @@ public class addProductController implements Initializable {
     private ObservableList<Part> partInventory = FXCollections.observableArrayList();
     private ObservableList<Part> part1Inventory = FXCollections.observableArrayList();
 
-
+    /**
+     * This is the constructor for the addProductController class
+     * @param inv
+     */
     public addProductController(Inventory inv) {
         this.inv = inv;
     }
 
     /**
-     * This is the initialize method
+     * Initializes the addProductController class
      * @param location
      * @param resources
      */
@@ -111,7 +116,7 @@ public class addProductController implements Initializable {
     }
 
     /**
-     * This generates the id for the product
+     * This randomly generates the id for the product
      */
     void generateProductID() {
         Random num = new Random();
@@ -122,7 +127,7 @@ public class addProductController implements Initializable {
     }
 
     /**
-     * This adds the information into the associates table
+     * This adds the parts data into the associates table
      * @param event
      */
     @FXML
@@ -147,15 +152,6 @@ public class addProductController implements Initializable {
         partPriceColumn1.setCellValueFactory(new PropertyValueFactory<>("price"));
     }
 
-    /**
-     * This goes back to the main screen
-     * @param event
-     * @throws IOException
-     */
-    @FXML
-    void onActionCancel(ActionEvent event) throws IOException {
-        mainScreen(event);
-    }
 
     /**
      * This removes the part from the associate table
@@ -165,13 +161,31 @@ public class addProductController implements Initializable {
     void onActionRemove(ActionEvent event) {
         Part removePart = associateTable.getSelectionModel().getSelectedItem();
         if(removePart != null) {
-            part1Inventory.remove(removePart);
-            associateTable.refresh();
+            if(infoBoxConfirm()) {
+                part1Inventory.remove(removePart);
+                associateTable.refresh();
+            }
+
         }
     }
 
+    /**
+     * This saves the data for the associated parts
+     * @param event
+     * @throws IOException
+     */
     @FXML
     void onActionSave(ActionEvent event) throws IOException {
+        boolean clean = true;
+        TextField[] fields = {addProductID, addProductName, addProductPrice,
+                addProductInv, addProductMin, addProductMax};
+        for(TextField field: fields) {
+            if(!checkValue(field)) {
+                clean = false;
+            }
+        }
+        if(!clean) return;
+
         int id = Integer.parseInt(addProductID.getText().trim());
         String name = addProductName.getText().trim();
         Double price = Double.parseDouble(addProductPrice.getText().trim());
@@ -198,24 +212,24 @@ public class addProductController implements Initializable {
                             inv.addProduct(product);
                             mainScreen(event);
                         } else {
-                            infoBox("price cannot be less than the price of the parts", "error");
+                            infoBoxError("price cannot be less than the price of the parts", "error");
                         }
                     }  else {
-                        infoBox("You must add a part", "error");
+                        infoBoxError("You must add a part", "error");
                     }
                 } else {
-                    infoBox("max cannot be less than min", "error");
+                    infoBoxError("max cannot be less than min", "error");
                 }
             } else {
-                infoBox("stock cannot be less than min", "error");
+                infoBoxError("stock cannot be less than min", "error");
             }
         } else {
-            infoBox("stock cannot be greater than max", "error");
+            infoBoxError("stock cannot be greater than max", "error");
         }
     }
 
     /**
-     * This helps searches for the parts section
+     * This searches for the parts section
      * @param event
      */
     @FXML
@@ -227,7 +241,7 @@ public class addProductController implements Initializable {
     }
 
     /**
-     * This helps bring everything info back for the parts table when you clear the text
+     * This clears the search box and resets the parts table
      * @param event
      */
     @FXML
@@ -242,7 +256,17 @@ public class addProductController implements Initializable {
         }
     }
 
-
+    /**
+     * This goes back to the main screen
+     * @param event
+     * @throws IOException
+     */
+    @FXML
+    void onActionCancel(ActionEvent event) throws IOException {
+        if(infoBoxConfirm()) {
+            mainScreen(event);
+        }
+    }
 
     /**
      * This is the private method of going to the mainScreenController
@@ -262,16 +286,54 @@ public class addProductController implements Initializable {
     }
 
     /**
-     * This is an infobox for corrections
+     * This is an infobox for errors
      * @param infoMessage
-     * @param titleBar
+     * @param headerText
      */
-    public static void infoBox(String infoMessage, String titleBar)
-    {
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle(titleBar);
+    public void infoBoxError(String infoMessage, String headerText) {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setHeaderText(headerText);
         alert.setContentText(infoMessage);
         alert.showAndWait();
+    }
+
+    /**
+     * This is an infobox for confirmations
+     */
+    public boolean infoBoxConfirm() {
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setHeaderText("Are you sure?");
+
+        Optional<ButtonType> result = alert.showAndWait();
+        return result.get() == ButtonType.OK;
+    }
+
+    /**
+     * This checks the user input values
+     */
+    public boolean checkValue(TextField text) {
+
+        if (text.getText().trim().isEmpty() || (text.getText().trim() == null)) {
+            infoBoxError("value cannot be empty", "error");
+            return false;
+        } else if (text == addProductInv && !text.getText().trim().matches("[0-9]+")) {
+            infoBoxError("inventory must be of numerical format", "error");
+            return false;
+        } else if (text == addProductPrice && !text.getText().trim().matches("^[0-9]+[.][0-9]{2}$")) {
+
+            infoBoxError("price must be of price format ex(1.11)", "error");
+            return false;
+        } else if (text == addProductPrice && Double.parseDouble(text.getText().trim()) < 0) {
+            infoBoxError("price cannot be less than 0", "error");
+            return false;
+        } else if ((text == addProductMax ||
+                text == addProductMin) && !text.getText().trim().matches("[0-9]+")) {
+
+            infoBoxError(text.getText() + " must be of numerical format", "error");
+            return false;
+        } else {
+            return true;
+        }
     }
 }
 
