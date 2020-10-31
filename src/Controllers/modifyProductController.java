@@ -1,6 +1,6 @@
 package Controllers;
 
-import Model.InHouse;
+
 import Model.Inventory;
 import Model.Part;
 import Model.Product;
@@ -201,25 +201,23 @@ public class modifyProductController implements Initializable {
             if(stock >= min) {
                 //this checks if max is greater or equal to min and if the associate table is not empty
                 if(max >= min) {
-                    //this checks if part1Inventory is not empty
-                    if(part1Inventory.size() != 0) {
-                        Product product = new Product(id, name, price, stock, min, max);
                         double cost = 0;
+                        Integer index = inv.getAllProducts().indexOf(product);
+                        Product updatedProduct = new Product(id, name, price, stock, min, max);
+
                         for(int i = 0; i < part1Inventory.size(); i++) {
                             Part item = part1Inventory.get(i);
                             cost += item.getPrice();
-                            product.addAssociatedPart(part1Inventory.get(i));
+                            updatedProduct.addAssociatedPart(part1Inventory.get(i));
                         }
+
                         //this checks if price is greater or equal to cost
                         if(price >= cost) {
-                            inv.addProduct(product);
+                            inv.updateProduct(index, updatedProduct);
                             mainScreen(event);
                         } else {
                             infoBoxError("price cannot be less than the price of the parts", "error");
                         }
-                    }  else {
-                        infoBoxError("You must add a part", "error");
-                    }
                 } else {
                     infoBoxError("max cannot be less than min", "error");
                 }

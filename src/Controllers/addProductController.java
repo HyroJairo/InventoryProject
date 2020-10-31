@@ -1,6 +1,5 @@
 package Controllers;
 
-import Model.InHouse;
 import Model.Inventory;
 import Model.Part;
 import Model.Product;

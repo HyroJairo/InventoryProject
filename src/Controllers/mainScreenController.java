@@ -228,15 +228,15 @@ public class mainScreenController implements Initializable {
         Product removeProduct = productsTable.getSelectionModel().getSelectedItem();
         if (removeProduct != null) {
             if(removeProduct.getAllAssociatedParts().size() > 0) {
+                infoBoxError("Product still has parts associated with it", "error");
+//               Alert alert = new Alert(Alert.AlertType.WARNING);
+//               alert.setHeaderText("Warning");
+//               alert.setContentText("Product still has parts associated with it");
+//               alert.showAndWait();
 
-               Alert alert = new Alert(Alert.AlertType.WARNING);
-               alert.setHeaderText("Warning");
-               alert.setContentText("Product still has parts associated with it");
-               alert.showAndWait();
-               if(infoBoxConfirm()) {
-                   inv.deleteProduct(removeProduct);
-                   productInventory.remove(removeProduct);
-               }
+            } else if(infoBoxConfirm()) {
+                inv.deleteProduct(removeProduct);
+                productInventory.remove(removeProduct);
             }
         } else {
             infoBoxError("You must select a product", "error");
